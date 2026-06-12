@@ -1,0 +1,1098 @@
+import { useState, FormEvent } from 'react';
+import {
+  Heart,
+  Sparkles,
+  User,
+  Users,
+  Check,
+  Plus,
+  Trash,
+  MessageSquare,
+  Gift,
+  TrendingUp,
+  Send,
+  Sun,
+  Moon,
+  Info,
+  ChevronRight,
+  Sparkle,
+  BookmarkCheck,
+  Activity
+} from 'lucide-react';
+import { Habit, Reward, Message, CategoryType, User as UserType } from '../types';
+
+export default function CoupleHabitsSimulator() {
+  // Simulator Themes
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
+
+  // Active User in Simulator (Switching views simulates the real sync between devices!)
+  const [currentUser, setCurrentUser] = useState<'partner_a' | 'partner_b'>('partner_a');
+
+  // Initial user structures with points
+  const [users, setUsers] = useState<{ [id: string]: UserType }>({
+    partner_a: { id: 'partner_a', name: 'Mateo', avatar: '👨‍💻', color: '#f97316', role: 'partner_a', points: 145 },
+    partner_b: { id: 'partner_b', name: 'Sofía', avatar: '👩‍🎨', color: '#ec4899', role: 'partner_b', points: 90 }
+  });
+
+  // Mock habits according to three obligatory categories
+  const [habits, setHabits] = useState<Habit[]>([
+    {
+      id: 'h1',
+      name: 'Agradecer por la mañana juntos',
+      category: 'personal',
+      ownerId: 'partner_a',
+      frequency: 'Diario',
+      streak: 5,
+      history: { '2026-06-12': false },
+      cue: 'Al mirarnos al despertar.',
+      craving: 'Paz emocional compartida',
+      response: 'Dar las gracias por 1 minuto.',
+      reward: 'Un abrazo largo de 10 segundos.',
+      difficulty: 'fácil',
+      createdAt: '2026-06-01'
+    },
+    {
+      id: 'h2',
+      name: 'Ahorrar 5€ en alcancía inteligente',
+      category: 'financiero',
+      ownerId: 'partner_a',
+      frequency: 'Diario',
+      streak: 12,
+      history: { '2026-06-12': true },
+      cue: 'Al abrir mi banca móvil diaria.',
+      craving: 'Sentir seguridad para el viaje de verano',
+      response: 'Transferir 5€ automático.',
+      reward: 'Ver crecer el bote financiero juntos.',
+      difficulty: 'fácil',
+      createdAt: '2026-06-01'
+    },
+    {
+      id: 'h3',
+      name: 'Sacar la bolsa de reciclaje',
+      category: 'operativo',
+      ownerId: 'partner_a',
+      frequency: 'Lunes, Miércoles, Viernes',
+      streak: 4,
+      history: { '2026-06-12': false },
+      cue: 'Justo después de cenar.',
+      craving: 'Cocina limpia y libre de malos olores',
+      response: 'Dejar la bolsa junto a la puerta.',
+      reward: 'Echar un spray aromático de lavanda.',
+      difficulty: 'fácil',
+      createdAt: '2026-06-05'
+    },
+    {
+      id: 'h4',
+      name: 'Leer 10 páginas de mi libro',
+      category: 'personal',
+      ownerId: 'partner_b',
+      frequency: 'Diario',
+      streak: 8,
+      history: { '2026-06-12': false },
+      cue: 'Mientras se prepara el té de la tarde.',
+      craving: 'Estimular mi imaginación',
+      response: 'Abrir el libro en el sillón.',
+      reward: 'Disfrutar el sabor de la primera taza caliente.',
+      difficulty: 'medio',
+      createdAt: '2026-06-02'
+    },
+    {
+      id: 'h5',
+      name: 'Registrar gastos del día en la tabla',
+      category: 'financiero',
+      ownerId: 'partner_b',
+      frequency: 'Diario',
+      streak: 15,
+      history: { '2026-06-12': false },
+      cue: 'Al sentarnos a cenar.',
+      craving: 'Tranquilidad al final de mes',
+      response: 'Abrir la hoja de presupuesto.',
+      reward: 'Compartir una sonrisa de complacencia financiera.',
+      difficulty: 'medio',
+      createdAt: '2026-06-02'
+    },
+    {
+      id: 'h6',
+      name: 'Regar el huerto urbano',
+      category: 'operativo',
+      ownerId: 'partner_b',
+      frequency: 'Diario',
+      streak: 9,
+      history: { '2026-06-12': true },
+      cue: 'Al sonar la alarma de las 18:30h.',
+      craving: 'Ver mis plantas florecer y dar frutos',
+      response: 'Llenar la regadera roja de un litro.',
+      reward: 'Aroma fresco de tierra húmeda.',
+      difficulty: 'fácil',
+      createdAt: '2026-06-03'
+    }
+  ]);
+
+  // Gamification rewards
+  const [rewards, setRewards] = useState<Reward[]>([
+    {
+      id: 'r1',
+      title: 'Preparar pasta carbonara italiana auténtica',
+      description: 'El perdedor de la semana de ahorro culinario prepara una tina de pasta artesanal cremosa con guanciale.',
+      proposerId: 'partner_a',
+      state: 'disponible',
+      category: 'personal',
+      pointsCost: 40,
+      rewardValue: 'Cena Gourmet en Pareja'
+    },
+    {
+      id: 'r2',
+      title: 'Masaje relajante de pies con aceites básicos',
+      description: 'Masaje de 20 minutos con música de fondo por haber completado la racha de hábitos operativos.',
+      proposerId: 'partner_b',
+      claimerId: 'partner_a',
+      state: 'reclamada',
+      category: 'personal',
+      pointsCost: 80,
+      rewardValue: 'Masaje de 20 minutos'
+    },
+    {
+      id: 'r3',
+      title: 'Elegir maratón de película dominical',
+      description: 'Veto libre para decidir la serie o película del fin de semana sin que la pareja proteste.',
+      proposerId: 'partner_b',
+      state: 'disponible',
+      category: 'experiencia',
+      pointsCost: 35,
+      rewardValue: 'Control del Mando TV Todo el Domingo'
+    },
+    {
+      id: 'r4',
+      title: 'Exención de limpiar vajilla por 3 días',
+      description: 'Completado y convalidado con éxito por el excelente desempeño financiero.',
+      proposerId: 'partner_a',
+      state: 'completada',
+      category: 'operativo',
+      pointsCost: 100,
+      rewardValue: '3 Días de Descanso total de platos'
+    }
+  ]);
+
+  // Support Chat simulation
+  const [messages, setMessages] = useState<Message[]>([
+    { id: 'm1', senderId: 'partner_b', text: '¡Hola amor! ¿Cómo vas con tu hábito personal de hoy? 😊', timestamp: '09:12' },
+    { id: 'm2', senderId: 'partner_a', text: '¡Hola! Ya completé el ahorro financiero diario en la alcancía. ¡Ya son 12 días seguidos! 💸', timestamp: '09:20' },
+    { id: 'm3', senderId: 'partner_b', text: '¡Estupendo! Yo ya regué las plantas y el huerto urbano 🏡. ¡Seguimos sumando puntos!', timestamp: '10:05' }
+  ]);
+
+  // Local state form states
+  const [newHabitName, setNewHabitName] = useState('');
+  const [newHabitCategory, setNewHabitCategory] = useState<CategoryType>('personal');
+  const [newHabitCue, setNewHabitCue] = useState('');
+  const [newHabitReward, setNewHabitReward] = useState('');
+  const [newHabitDifficulty, setNewHabitDifficulty] = useState<'fácil' | 'medio' | 'difícil'>('fácil');
+  const [showAddHabitForm, setShowAddHabitForm] = useState(false);
+
+  // New reward creation
+  const [newRewardTitle, setNewRewardTitle] = useState('');
+  const [newRewardValue, setNewRewardValue] = useState('');
+  const [newRewardCost, setNewRewardCost] = useState<number>(30);
+  const [showAddRewardForm, setShowAddRewardForm] = useState(false);
+
+  // Chat custom text
+  const [chatInput, setChatInput] = useState('');
+
+  // Active screen/tab inside app mockup
+  const [activeMockScreen, setActiveMockScreen] = useState<'habitos' | 'recompensas' | 'estadisticas' | 'chat'>('habitos');
+
+  // Handle habit check actions
+  const toggleHabit = (id: string) => {
+    setHabits(prev =>
+      prev.map(h => {
+        if (h.id === id) {
+          const isCompleted = !h.history['2026-06-12'];
+          const pointDiff = isCompleted ? 15 : -15;
+
+          // Update points for user
+          setUsers(u => ({
+            ...u,
+            [h.ownerId]: {
+              ...u[h.ownerId],
+              points: Math.max(0, u[h.ownerId].points + pointDiff)
+            }
+          }));
+
+          // Send system chat notification bubble automatically!
+          if (isCompleted) {
+            const systemMsg: Message = {
+              id: `sys-${Date.now()}`,
+              senderId: 'system',
+              text: `📢 ${users[h.ownerId].name} completó: "${h.name}" y ganó 15 Puntos. 🚀`,
+              timestamp: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+              isSystem: true
+            };
+            setMessages(m => [...m, systemMsg]);
+          }
+
+          return {
+            ...h,
+            streak: isCompleted ? h.streak + 1 : Math.max(0, h.streak - 1),
+            history: {
+              ...h.history,
+              '2026-06-12': isCompleted
+            }
+          };
+        }
+        return h;
+      })
+    );
+  };
+
+  // Add custom habit
+  const handleAddHabit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!newHabitName.trim()) return;
+
+    const habit: Habit = {
+      id: `h-${Date.now()}`,
+      name: newHabitName,
+      category: newHabitCategory,
+      ownerId: currentUser,
+      frequency: 'Diario',
+      streak: 0,
+      history: { '2026-06-12': false },
+      cue: newHabitCue || 'Hacerlo al despertar.',
+      craving: 'Deseo de bienestar',
+      response: 'Comenzar con la micro-acción de 2 minutos.',
+      reward: newHabitReward || 'Registrar mi logro de inmediato.',
+      difficulty: newHabitDifficulty,
+      createdAt: '2026-06-12'
+    };
+
+    setHabits(prev => [...prev, habit]);
+    setNewHabitName('');
+    setNewHabitCue('');
+    setNewHabitReward('');
+    setShowAddHabitForm(false);
+  };
+
+  // Delete habit
+  const deleteHabit = (id: string) => {
+    setHabits(prev => prev.filter(h => h.id !== id));
+  };
+
+  // Claim a reward using accumulated points
+  const claimReward = (rewardId: string) => {
+    const reward = rewards.find(r => r.id === rewardId);
+    if (!reward) return;
+
+    const user = users[currentUser];
+    if (user.points < reward.pointsCost) {
+      alert(`⚠️ Puntos insuficientes. ${user.name} necesita ${reward.pointsCost} pts (Tiene: ${user.points} pts).`);
+      return;
+    }
+
+    // Deduct points
+    setUsers(prev => ({
+      ...prev,
+      [currentUser]: {
+        ...prev[currentUser],
+        points: prev[currentUser].points - reward.pointsCost
+      }
+    }));
+
+    // Update reward state
+    setRewards(prev =>
+      prev.map(r => {
+        if (r.id === rewardId) {
+          return {
+            ...r,
+            claimerId: currentUser,
+            state: 'reclamada'
+          };
+        }
+        return r;
+      })
+    );
+
+    // Dynamic notification in chat
+    const systemMsg: Message = {
+      id: `sys-claim-${Date.now()}`,
+      senderId: 'system',
+      text: `🎁 ${user.name} reclamó la recompensa: "${reward.title}". Requiere validación de su pareja.`,
+      timestamp: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+      isSystem: true
+    };
+    setMessages(m => [...m, systemMsg]);
+  };
+
+  // Validate claimed reward
+  const validateReward = (rewardId: string) => {
+    const partnerId = currentUser === 'partner_a' ? 'partner_b' : 'partner_a';
+
+    setRewards(prev =>
+      prev.map(r => {
+        if (r.id === rewardId) {
+          return {
+            ...r,
+            state: 'completada'
+          };
+        }
+        return r;
+      })
+    );
+
+    // Chat log
+    const systemMsg: Message = {
+      id: `sys-val-${Date.now()}`,
+      senderId: 'system',
+      text: `✅ ${users[currentUser].name} validó y entregó el premio a su pareja. ¡Disfrútenlo! 🎉`,
+      timestamp: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+      isSystem: true
+    };
+    setMessages(prev => [...prev, systemMsg]);
+  };
+
+  // Create customized reward proposal
+  const handleAddReward = (e: FormEvent) => {
+    e.preventDefault();
+    if (!newRewardTitle.trim()) return;
+
+    const newR: Reward = {
+      id: `r-${Date.now()}`,
+      title: newRewardTitle,
+      description: 'Propuesta de incentivo hecha libremente en pareja.',
+      proposerId: currentUser,
+      state: 'disponible',
+      category: 'experiencia',
+      pointsCost: newRewardCost,
+      rewardValue: newRewardValue || 'Premio sorpresa'
+    };
+
+    setRewards(prev => [newR, ...prev]);
+    setNewRewardTitle('');
+    setNewRewardValue('');
+    setNewRewardCost(30);
+    setShowAddRewardForm(false);
+  };
+
+  // Send encouragement message in chat
+  const handleSendMessage = () => {
+    if (!chatInput.trim()) return;
+
+    const newMsg: Message = {
+      id: `msg-${Date.now()}`,
+      senderId: currentUser,
+      text: chatInput,
+      timestamp: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+    };
+
+    setMessages(m => [...m, newMsg]);
+    setChatInput('');
+
+    // Simulated short response of motivation with automatic random template after 1.5 seconds!
+    setTimeout(() => {
+      const partnerId = currentUser === 'partner_a' ? 'partner_b' : 'partner_a';
+      const answers = [
+        '¡Sii amor! Juntos podemos hoy 🔥.',
+        'Me encanta trabajar como equipo contigo ❤️.',
+        '¡Hábitos Atómicos activados! Vamos con todo ✨.',
+        'Estás racha excelente. ¡Te admiro! 👑',
+        '¡Ahorro financiero completándose súper bien! 💸.'
+      ];
+      const randomAnswer = answers[Math.floor(Math.random() * answers.length)];
+
+      const systemReply: Message = {
+        id: `reply-${Date.now()}`,
+        senderId: partnerId,
+        text: randomAnswer,
+        timestamp: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+      };
+
+      setMessages(m => [...m, systemReply]);
+    }, 1500);
+  };
+
+  // Fast preset encouragement messages
+  const sendPreset = (text: string) => {
+    const newMsg: Message = {
+      id: `preset-${Date.now()}`,
+      senderId: currentUser,
+      text: text,
+      timestamp: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+    };
+    setMessages(m => [...m, newMsg]);
+  };
+
+  // Calculate metrics for charts
+  const mateoHabits = habits.filter(h => h.ownerId === 'partner_a');
+  const sofiaHabits = habits.filter(h => h.ownerId === 'partner_b');
+
+  const mateoCompleted = mateoHabits.filter(h => h.history['2026-06-12']).length;
+  const sofiaCompleted = sofiaHabits.filter(h => h.history['2026-06-12']).length;
+
+  const mateoProgress = mateoHabits.length ? Math.round((mateoCompleted / mateoHabits.length) * 100) : 0;
+  const sofiaProgress = sofiaHabits.length ? Math.round((sofiaCompleted / sofiaHabits.length) * 100) : 0;
+
+  const totalCompletedCombined = mateoCompleted + sofiaCompleted;
+  const totalHabitsCombined = habits.length;
+
+  // Joint sync score
+  const coupleSyncPercent = Math.round(((mateoProgress + sofiaProgress) / 2));
+
+  // Category based progress
+  const categoryStats = {
+    personal: { total: habits.filter(h => h.category === 'personal').length, comp: habits.filter(h => h.category === 'personal' && h.history['2026-06-12']).length },
+    financiero: { total: habits.filter(h => h.category === 'financiero').length, comp: habits.filter(h => h.category === 'financiero' && h.history['2026-06-12']).length },
+    operativo: { total: habits.filter(h => h.category === 'operativo').length, comp: habits.filter(h => h.category === 'operativo' && h.history['2026-06-12']).length }
+  };
+
+  return (
+    <div className={`p-1 bg-neutral-100 rounded-3xl ${isDarkMode ? 'dark' : ''}`}>
+      <div className="bg-neutral-50 dark:bg-zinc-950 p-4 md:p-6 rounded-2xl border border-neutral-250 dark:border-zinc-900 transition-colors duration-300">
+        
+        {/* Simulator Control Area */}
+        <div className="p-4 bg-white/80 dark:bg-zinc-900/60 border border-orange-100/60 dark:border-zinc-800 rounded-3xl mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-orange-400/10 to-pink-500/10 text-orange-500 flex items-center justify-center font-bold">
+              <Activity className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="px-2.5 py-0.5 bg-orange-100 dark:bg-zinc-800 text-orange-600 dark:text-orange-400 font-mono text-[9px] font-black rounded-full uppercase tracking-wider">
+                SIMULADOR VIRTUAL ACTIVO
+              </span>
+              <h3 className="text-xs font-black text-slate-800 dark:text-zinc-200 mt-1">
+                Sincronización Mutua de Dispositivos (Live)
+              </h3>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Perspective simulator switch */}
+            <div className="flex items-center bg-slate-100 dark:bg-zinc-800 p-1 rounded-2xl border border-slate-200 dark:border-zinc-700">
+              <button
+                onClick={() => setCurrentUser('partner_a')}
+                className={`px-4 py-1.5 text-xs font-black rounded-xl transition-all flex items-center gap-1.5 ${
+                  currentUser === 'partner_a'
+                    ? 'bg-gradient-to-r from-orange-400 to-pink-500 text-white shadow-xs'
+                    : 'text-slate-500 dark:text-zinc-400 hover:text-slate-700 dark:hover:text-zinc-200'
+                }`}
+              >
+                <span>👨‍💻</span> {users.partner_a.name} (A)
+              </button>
+              <button
+                onClick={() => setCurrentUser('partner_b')}
+                className={`px-4 py-1.5 text-xs font-black rounded-xl transition-all flex items-center gap-1.5 ${
+                  currentUser === 'partner_b'
+                    ? 'bg-gradient-to-r from-pink-500 to-indigo-500 text-white shadow-xs'
+                    : 'text-slate-500 dark:text-zinc-400 hover:text-slate-700 dark:hover:text-zinc-200'
+                }`}
+              >
+                <span>👩‍🎨</span> {users.partner_b.name} (B)
+              </button>
+            </div>
+
+            {/* Simulated UI Theme Toggler */}
+            <button
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              title="Alternar apariencia"
+              className="p-2 text-slate-500 hover:text-slate-900 bg-slate-100 dark:bg-zinc-800 dark:text-zinc-300 rounded-xl hover:bg-slate-200"
+            >
+              {isDarkMode ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-indigo-500" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Outer Frame Simulating a Polished Premium App Canvas */}
+        <div className="max-w-md mx-auto bg-white/95 dark:bg-zinc-900/40 rounded-[36px] p-3.5 border-4 border-orange-100 dark:border-zinc-800 shadow-xl overflow-hidden relative">
+          
+          {/* Active Canvas Context */}
+          <div className="bg-white dark:bg-zinc-950 rounded-[28px] min-h-[580px] shadow-xs flex flex-col justify-between text-slate-805 dark:text-zinc-100 font-sans transition-colors duration-300 overflow-hidden border border-orange-100/50 dark:border-zinc-850">
+            
+            {/* Device Header */}
+            <div>
+              <div className="px-5 py-4 border-b border-orange-50 dark:border-zinc-900 bg-[#FDF8F6]/80 dark:bg-zinc-900/30 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-full bg-orange-100 dark:bg-zinc-800 flex items-center justify-center text-lg shadow-inner">
+                    {users[currentUser].avatar}
+                  </div>
+                  <div>
+                    <span className="text-[9px] text-orange-500 dark:text-zinc-500 uppercase tracking-widest font-black block">
+                      Hábito Atómico
+                    </span>
+                    <h4 className="text-xs font-bold text-slate-800 dark:text-zinc-200">
+                      Vínculo de {users[currentUser].name}
+                    </h4>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5 bg-gradient-to-r from-orange-400/10 to-pink-500/10 border border-orange-200/30 px-3 py-1 rounded-full shadow-xs">
+                  <Sparkles className="w-3 h-3 text-orange-500 animate-pulse" />
+                  <span className="text-xs font-bold font-mono text-orange-600 dark:text-orange-400">
+                    {users[currentUser].points} pts
+                  </span>
+                </div>
+              </div>
+
+              {/* Coupled Synced Progress Banner */}
+              <div className="p-4 bg-gradient-to-r from-orange-400/5 to-pink-500/5 border-b border-orange-100/50 dark:border-zinc-900">
+                <div className="flex items-center justify-between text-xs mb-1.5">
+                  <span className="text-slate-500 dark:text-zinc-400 font-semibold flex items-center gap-1">
+                    <Heart className="w-3.5 h-3.5 text-pink-505 fill-pink-500 text-pink-500 animate-pulse" />
+                    Sintonía de Pareja Hoy
+                  </span>
+                  <span className="font-mono font-bold text-pink-500 dark:text-pink-400 text-sm">
+                    {coupleSyncPercent}%
+                  </span>
+                </div>
+                
+                {/* Visual synced bar */}
+                <div className="w-full bg-slate-100 dark:bg-zinc-800 h-2.5 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-orange-400 to-pink-500 rounded-full transition-all duration-700"
+                    style={{ width: `${coupleSyncPercent}%` }}
+                  />
+                </div>
+
+                {/* Micro statistic */}
+                <div className="flex items-center justify-between text-[10px] text-slate-450 dark:text-zinc-500 mt-1.5">
+                  <span>Mateo: <strong className="text-orange-500">{mateoCompleted}/{mateoHabits.length}</strong> racha, {mateoProgress}%</span>
+                  <span>Sofía: <strong className="text-pink-500">{sofiaCompleted}/{sofiaHabits.length}</strong> racha, {sofiaProgress}%</span>
+                </div>
+              </div>
+            </div>
+
+            {/* SCREEN 1: DAILY HABITS (MANDATORY THREE AREAS) */}
+            {activeMockScreen === 'habitos' && (
+              <div className="p-4 flex-1 overflow-y-auto max-h-[350px]">
+                
+                {/* Context alert */}
+                <div className="mb-4 text-[11px] text-slate-500 dark:text-zinc-400 p-2.5 bg-[#FDF8F6] dark:bg-zinc-905 rounded-xl border border-orange-100/70 dark:border-zinc-800">
+                  ⚡ <strong>3 Áreas Requeridas:</strong> Personal, Financiera y Operativa. Presiona el 체크 para completar.
+                </div>
+
+                <div className="space-y-4">
+                  {/* Category Filter Section */}
+                  {['personal', 'financiero', 'operativo'].map((cat) => {
+                    const categoryLabels = {
+                      personal: { label: 'Área Personal (Bienestar & Lectura)', color: 'border-l-4 border-l-rose-500 bg-rose-50/20 dark:bg-rose-950/10', tagColor: 'text-rose-600 dark:text-rose-450 bg-rose-50 dark:bg-rose-950/30' },
+                      financiero: { label: 'Área Financiera (Ahorro & Control)', color: 'border-l-4 border-l-emerald-500 bg-emerald-50/20 dark:bg-emerald-950/10', tagColor: 'text-emerald-600 dark:text-emerald-450 bg-emerald-50 dark:bg-emerald-950/30' },
+                      operativo: { label: 'Área Operativa (Tareas & Hogar)', color: 'border-l-4 border-l-blue-500 bg-blue-50/20 dark:bg-blue-950/10', tagColor: 'text-blue-600 dark:text-blue-450 bg-blue-50 dark:bg-blue-950/30' }
+                    };
+
+                    const catHabits = habits.filter(h => h.category === cat);
+                    const labelInfo = categoryLabels[cat as CategoryType];
+
+                    return (
+                      <div key={cat} className="space-y-2">
+                        <span className="text-[10px] font-bold text-neutral-400 dark:text-zinc-500 uppercase tracking-wider block">
+                          {labelInfo.label}
+                        </span>
+
+                        <div className="space-y-2">
+                          {catHabits.length === 0 ? (
+                            <div className="text-center py-4 bg-neutral-50 dark:bg-zinc-900/30 rounded-xl border border-neutral-100 dark:border-zinc-900 text-xs text-neutral-400">
+                              Sin hábitos creados en esta categoría.
+                            </div>
+                          ) : (
+                            catHabits.map((hb) => {
+                              const isCompleted = !!hb.history['2026-06-12'];
+                              const isOwner = hb.ownerId === currentUser;
+
+                              return (
+                                <div
+                                  key={hb.id}
+                                  className={`p-3 rounded-xl border ${labelInfo.color} transition-all ${
+                                    isCompleted
+                                      ? 'bg-neutral-50/50 dark:bg-zinc-900/50 border-neutral-200 dark:border-zinc-800 opacity-80'
+                                      : 'bg-white dark:bg-zinc-950 border-neutral-200/80 dark:border-zinc-850/80 shadow-xs'
+                                  }`}
+                                >
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="flex items-start gap-2.5">
+                                      {/* Check mark for completion */}
+                                      <button
+                                        onClick={() => toggleHabit(hb.id)}
+                                        className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all mt-0.5 ${
+                                          isCompleted
+                                            ? 'bg-emerald-500 border-emerald-600 text-white'
+                                            : 'border-neutral-300 dark:border-zinc-700 hover:border-emerald-500'
+                                        }`}
+                                      >
+                                        {isCompleted && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                                      </button>
+
+                                      <div>
+                                        <h5 className={`text-xs font-bold leading-tight ${isCompleted ? 'line-through text-neutral-400 dark:text-zinc-500' : 'text-neutral-800 dark:text-zinc-100'}`}>
+                                          {hb.name}
+                                        </h5>
+                                        <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                                          <span className="text-[9px] font-mono bg-neutral-100 dark:bg-zinc-900 text-neutral-500 dark:text-zinc-400 rounded px-1 flex items-center gap-1">
+                                            {hb.ownerId === 'partner_a' ? '👨 Mateo' : '👩 Sofía'}
+                                          </span>
+                                          <span className="text-[9px] font-mono text-rose-500 font-bold bg-rose-500/5 px-1 rounded">
+                                            🔥 Racha: {hb.streak}d
+                                          </span>
+                                        </div>
+
+                                        {/* Atomic Habit expansion clues */}
+                                        <div className="mt-2 text-[10px] text-neutral-500 dark:text-zinc-400 border-t border-neutral-100 dark:border-zinc-900/60 pt-1">
+                                          <div className="line-clamp-1">
+                                            <span className="text-[9px] font-mono text-yellow-600 dark:text-yellow-400 font-bold uppercase">Señal:</span> {hb.cue}
+                                          </div>
+                                          <div className="line-clamp-1 mt-0.2">
+                                            <span className="text-[9px] font-mono text-rose-600 dark:text-rose-400 font-bold uppercase">Recompensa:</span> {hb.reward}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    {/* Action dropdown/trash delete */}
+                                    <button
+                                      onClick={() => deleteHabit(hb.id)}
+                                      title="Descartar hábito"
+                                      className="p-1 text-neutral-300 hover:text-red-500 hover:bg-neutral-100 dark:hover:bg-zinc-900/80 rounded transition-colors"
+                                    >
+                                      <Trash className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                </div>
+                              );
+                            })
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Add new custom habit toggle panel */}
+                <div className="mt-4 pt-2">
+                  {!showAddHabitForm ? (
+                    <button
+                      onClick={() => setShowAddHabitForm(true)}
+                      className="w-full py-2.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-zinc-900 dark:hover:bg-zinc-850 text-xs font-semibold rounded-xl flex items-center justify-center gap-2 text-neutral-700 dark:text-zinc-300 transition-colors border border-dashed border-neutral-300 dark:border-zinc-800"
+                    >
+                      <Plus className="w-4 h-4" /> Agregar Hábito Atómico
+                    </button>
+                  ) : (
+                    <form onSubmit={handleAddHabit} className="bg-neutral-50 dark:bg-zinc-950 p-4 border border-neutral-200 dark:border-zinc-800 rounded-xl space-y-3">
+                      <div className="text-xs font-bold text-neutral-700 dark:text-zinc-300 flex items-center justify-between border-b pb-1.5">
+                        <span>Diseñar Nuevo Hábito</span>
+                        <button type="button" onClick={() => setShowAddHabitForm(false)} className="text-[10px] text-neutral-400 hover:text-neutral-600">Cancelar</button>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div>
+                          <label className="text-[10px] font-bold text-neutral-400 dark:text-zinc-500 block mb-0.5">Categoría Obligatoria</label>
+                          <select
+                            value={newHabitCategory}
+                            onChange={(e) => setNewHabitCategory(e.target.value as CategoryType)}
+                            className="w-full text-xs p-1.5 bg-white dark:bg-zinc-900 border border-neutral-200 dark:border-zinc-800 rounded font-medium text-neutral-700 dark:text-zinc-300"
+                          >
+                            <option value="personal">Área Personal (Lectura/Salud)</option>
+                            <option value="financiero">Área Financiera (Ahorro/Inversión)</option>
+                            <option value="operativo">Área Operativa (Hogar/Tareas)</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-neutral-400 dark:text-zinc-500 block mb-0.5">Hábito (¿Qué harás?)</label>
+                          <input
+                            type="text"
+                            placeholder="Ej. Leer 15 minutos ó Ahorrar 2€"
+                            value={newHabitName}
+                            onChange={(e) => setNewHabitName(e.target.value)}
+                            className="w-full text-xs p-1.5 bg-white dark:bg-zinc-900 border border-neutral-200 dark:border-zinc-800 rounded text-neutral-700 dark:text-zinc-300"
+                            required
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-[10px] font-bold text-neutral-400 dark:text-zinc-500 block mb-0.5">Señal / Cue</label>
+                            <input
+                              type="text"
+                              placeholder="Ej. Al tomar café"
+                              value={newHabitCue}
+                              onChange={(e) => setNewHabitCue(e.target.value)}
+                              className="w-full text-xs p-1.5 bg-white dark:bg-zinc-900 border border-neutral-200 dark:border-zinc-800 rounded text-neutral-700 dark:text-zinc-300"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] font-bold text-neutral-400 dark:text-zinc-500 block mb-0.5">Recompensa</label>
+                            <input
+                              type="text"
+                              placeholder="Ej. Un tecito rico"
+                              value={newHabitReward}
+                              onChange={(e) => setNewHabitReward(e.target.value)}
+                              className="w-full text-xs p-1.5 bg-white dark:bg-zinc-900 border border-neutral-200 dark:border-zinc-800 rounded text-neutral-700 dark:text-zinc-300"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="w-full py-1.5 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded text-xs transition-colors"
+                      >
+                        Comprometerse en Pareja
+                      </button>
+                    </form>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* SCREEN 2: GAMIFIED REWARDS */}
+            {activeMockScreen === 'recompensas' && (
+              <div className="p-4 flex-1 overflow-y-auto max-h-[350px] space-y-4">
+                <div className="text-[11px] text-neutral-500 dark:text-zinc-400 p-2.5 bg-amber-500/5 rounded-xl border border-amber-500/15 leading-relaxed">
+                  🏆 <strong>Economía del Hábito:</strong> Sumen puntos marcando hábitos como completados diariamente (<strong>+15 c/u</strong>). Usen sus puntos individuales para canjear atractivas recompensas coordinadas.
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-neutral-400 dark:text-zinc-500 uppercase tracking-wider block">
+                      Catálogo de Canje
+                    </span>
+
+                    <button
+                      onClick={() => setShowAddRewardForm(!showAddRewardForm)}
+                      className="text-[10px] text-rose-500 font-bold hover:underline"
+                    >
+                      {showAddRewardForm ? 'Cerrar' : '+ Proponer Recompensa'}
+                    </button>
+                  </div>
+
+                  {showAddRewardForm && (
+                    <form onSubmit={handleAddReward} className="bg-neutral-50 dark:bg-zinc-950 p-3 border border-neutral-200 dark:border-zinc-850 rounded-xl space-y-2 mb-3">
+                      <div className="text-xs font-bold text-neutral-700 dark:text-zinc-300">
+                        Proponer Nuevo Premio Mutuo
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="Título ej: Domingo libre de quehaceres"
+                        value={newRewardTitle}
+                        onChange={(e) => setNewRewardTitle(e.target.value)}
+                        className="w-full text-xs p-1.5 bg-white dark:bg-zinc-900 border border-neutral-200 dark:border-zinc-800 rounded text-neutral-700 dark:text-zinc-300"
+                        required
+                      />
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          placeholder="Valor ej: Cena romántica"
+                          value={newRewardValue}
+                          onChange={(e) => setNewRewardValue(e.target.value)}
+                          className="w-full text-xs p-1.5 bg-white dark:bg-zinc-900 border border-neutral-200 dark:border-zinc-800 rounded text-neutral-700 dark:text-zinc-300"
+                        />
+                        <input
+                          type="number"
+                          placeholder="Costo en Puntos"
+                          value={newRewardCost}
+                          onChange={(e) => setNewRewardCost(Number(e.target.value))}
+                          className="w-full text-xs p-1.5 bg-white dark:bg-zinc-900 border border-neutral-200 dark:border-zinc-800 rounded text-neutral-700 dark:text-zinc-300"
+                          min="10"
+                        />
+                      </div>
+                      <button type="submit" className="w-full py-1 bg-amber-500 text-white font-bold rounded text-xs">
+                        Publicar en el Repositorio
+                      </button>
+                    </form>
+                  )}
+
+                  <div className="space-y-2.5">
+                    {rewards.map((r) => {
+                      const proposerName = users[r.proposerId]?.name || 'Miembro';
+                      const canRedeem = users[currentUser].points >= r.pointsCost;
+
+                      return (
+                        <div
+                          key={r.id}
+                          className={`p-3 rounded-xl border transition-all ${
+                            r.state === 'completada'
+                              ? 'bg-neutral-50 dark:bg-zinc-900/30 border-neutral-200 dark:border-zinc-900 opacity-60'
+                              : 'bg-white dark:bg-zinc-950 border-neutral-250 dark:border-zinc-800'
+                          }`}
+                        >
+                          <div className="flex justify-between items-start gap-2">
+                            <div>
+                              <span className="px-1.5 py-0.2 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-mono text-[8px] font-bold rounded tracking-wider uppercase">
+                                Costo: {r.pointsCost} Puntos
+                              </span>
+                              <h5 className="text-xs font-bold text-neutral-800 dark:text-zinc-100 mt-1">
+                                {r.title}
+                              </h5>
+                              <p className="text-[10px] text-neutral-500 dark:text-zinc-400 mt-1 leading-relaxed">
+                                {r.description}
+                              </p>
+
+                              <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                                <span className="text-[9px] font-medium text-neutral-400">Proponente: {proposerName}</span>
+                                <span className={`text-[9px] px-1.5 rounded font-bold uppercase ${
+                                  r.state === 'disponible' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20' :
+                                  r.state === 'reclamada' ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-950/20 animate-pulse' :
+                                  'bg-neutral-100 text-neutral-500 dark:bg-zinc-850'
+                                }`}>
+                                  {r.state}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Reward Interactive CTA Buttons depending on state & simulated role */}
+                            <div className="flex-shrink-0">
+                              {r.state === 'disponible' && (
+                                <button
+                                  onClick={() => claimReward(r.id)}
+                                  className={`px-2.5 py-1.5 text-[10px] font-bold rounded-lg transition-all ${
+                                    canRedeem
+                                      ? 'bg-amber-500 hover:bg-amber-600 text-white'
+                                      : 'bg-neutral-100 dark:bg-zinc-900 text-neutral-400 cursor-not-allowed border border-neutral-200 dark:border-zinc-800'
+                                  }`}
+                                >
+                                  Canjear
+                                </button>
+                              )}
+
+                              {r.state === 'reclamada' && (
+                                <div className="space-y-1">
+                                  {r.claimerId === currentUser ? (
+                                    <span className="text-[9px] text-neutral-450 italic block text-right">
+                                      Pendiente...
+                                    </span>
+                                  ) : (
+                                    <button
+                                      onClick={() => validateReward(r.id)}
+                                      className="px-2.5 py-1.5 text-[10px] font-bold bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg animate-pulse"
+                                    >
+                                      Validar
+                                    </button>
+                                  )}
+                                </div>
+                              )}
+
+                              {r.state === 'completada' && (
+                                <span className="p-1 px-1.5 bg-neutral-100 dark:bg-zinc-850 text-neutral-400 dark:text-zinc-500 rounded text-[9px] flex items-center gap-0.5">
+                                  ❤️ Cobrado
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* SCREEN 3: CHARTS & AUTOMATIC WEEKLY STATS */}
+            {activeMockScreen === 'estadisticas' && (
+              <div className="p-4 flex-1 overflow-y-auto max-h-[350px] space-y-4">
+                
+                {/* Visual completion stats card */}
+                <div className="bg-neutral-50/65 dark:bg-zinc-900/40 border border-neutral-200 dark:border-zinc-850 rounded-xl p-3">
+                  <div className="flex items-center justify-between mb-2 pb-2 border-b border-neutral-100 dark:border-zinc-850">
+                    <h5 className="text-[11px] font-bold text-neutral-600 dark:text-zinc-300 uppercase tracking-wider">
+                      Reporte Automático Semanal
+                    </h5>
+                    <span className="text-[9px] font-mono bg-zinc-800 text-zinc-100 px-1.5 rounded">
+                      Generado Hoy
+                    </span>
+                  </div>
+
+                  <p className="text-[10px] text-neutral-500 dark:text-zinc-400 font-sans leading-relaxed mb-3">
+                    ✨ <strong>¡Gran Sinergía!</strong> Mateo lidera la racha operativa con 12 días, mientras Sofía mantiene el 100% de cumplimiento en quehaceres domésticos esta semana.
+                  </p>
+
+                  {/* Horizontal Bar Chart representation */}
+                  <div className="space-y-2.5 pt-1">
+                    <div>
+                      <div className="flex justify-between text-[10px] mb-1 text-neutral-500 dark:text-zinc-400">
+                        <span>Hábitos Personales</span>
+                        <span>{categoryStats.personal.comp}/{categoryStats.personal.total} Completados</span>
+                      </div>
+                      <div className="w-full bg-neutral-200 dark:bg-zinc-800 h-2 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-rose-500 rounded-full"
+                          style={{ width: `${categoryStats.personal.total ? (categoryStats.personal.comp / categoryStats.personal.total) * 100 : 0}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-[10px] mb-1 text-neutral-500 dark:text-zinc-400">
+                        <span>Hábitos Financieros</span>
+                        <span>{categoryStats.financiero.comp}/{categoryStats.financiero.total} Completados</span>
+                      </div>
+                      <div className="w-full bg-neutral-200 dark:bg-zinc-800 h-2 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-emerald-500 rounded-full"
+                          style={{ width: `${categoryStats.financiero.total ? (categoryStats.financiero.comp / categoryStats.financiero.total) * 100 : 0}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-[10px] mb-1 text-neutral-500 dark:text-zinc-400">
+                        <span>Hábitos Operativos</span>
+                        <span>{categoryStats.operativo.comp}/{categoryStats.operativo.total} Completados</span>
+                      </div>
+                      <div className="w-full bg-neutral-200 dark:bg-zinc-800 h-2 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-blue-500 rounded-full"
+                          style={{ width: `${categoryStats.operativo.total ? (categoryStats.operativo.comp / categoryStats.operativo.total) * 100 : 0}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Atomic Habits Tip Box */}
+                <div className="p-3 bg-rose-500/5 border border-rose-500/10 rounded-xl space-y-1">
+                  <span className="text-[9px] font-bold text-rose-500 uppercase tracking-widest font-mono block">
+                    Consejo James Clear
+                  </span>
+                  <p className="text-[10px] text-neutral-500 dark:text-zinc-450 leading-relaxed italic">
+                    "No rompas la racha. Si fallas un día, asegúrate de no fallar dos veces seguidas. El primer fallo es un accidente, el segundo es el comienzo de un nuevo mal hábito."
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* SCREEN 4: CHAT & MOTIVATION WITH PRESETS */}
+            {activeMockScreen === 'chat' && (
+              <div className="p-4 flex-1 flex flex-col justify-between max-h-[350px] overflow-hidden">
+                
+                {/* Chat Log container */}
+                <div className="flex-1 overflow-y-auto space-y-2.5 mb-3 pr-1 text-xs">
+                  {messages.map((m) => {
+                    if (m.isSystem) {
+                      return (
+                        <div key={m.id} className="text-center py-1 text-[9px] text-zinc-400 bg-neutral-50 dark:bg-zinc-900/80 rounded border border-neutral-100 dark:border-zinc-800 font-mono">
+                          {m.text}
+                        </div>
+                      );
+                    }
+
+                    const isMe = m.senderId === currentUser;
+                    const sender = users[m.senderId];
+
+                    return (
+                      <div key={m.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                        <div className="flex items-center gap-1 mb-0.5 text-[9px] text-neutral-450">
+                          <span>{sender?.name}</span>
+                          <span>•</span>
+                          <span>{m.timestamp}</span>
+                        </div>
+                        <div className={`p-2.5 rounded-xl max-w-[85%] leading-relaxed ${
+                          isMe
+                            ? 'bg-gradient-to-r from-orange-400 to-pink-500 text-white rounded-tr-none'
+                            : 'bg-[#FDF8F6] dark:bg-zinc-800 text-slate-800 dark:text-zinc-200 rounded-tl-none border border-orange-100/30'
+                        }`}>
+                          <p className="text-xs">{m.text}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Instant Preset panel */}
+                <div className="border-t border-slate-100 dark:border-zinc-850 pt-2 space-y-2">
+                  <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-thin">
+                    <button
+                      onClick={() => sendPreset('¡Te admiro mucho por tus hábitos hoy! ❤️')}
+                      className="text-[9px] bg-orange-100/50 hover:bg-orange-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-orange-700 dark:text-zinc-300 py-1 px-2.5 rounded-full whitespace-nowrap flex-shrink-0 transition-colors font-semibold"
+                    >
+                      ❤️ Te admiro
+                    </button>
+                    <button
+                      onClick={() => sendPreset('¡Hábito completado, vamos equipo! 🔥')}
+                      className="text-[9px] bg-orange-100/50 hover:bg-orange-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-orange-700 dark:text-zinc-300 py-1 px-2.5 rounded-full whitespace-nowrap flex-shrink-0 transition-colors font-semibold"
+                    >
+                      🔥 ¡Racha!
+                    </button>
+                    <button
+                      onClick={() => sendPreset('¿Cómo vas con tu hábito personal de hoy? 👀')}
+                      className="text-[9px] bg-orange-100/50 hover:bg-orange-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-orange-700 dark:text-zinc-300 py-1 px-2.5 rounded-full whitespace-nowrap flex-shrink-0 transition-colors font-semibold"
+                    >
+                      👀 Recordatorio
+                    </button>
+                  </div>
+
+                  {/* Input form */}
+                  <div className="flex gap-1.5">
+                    <input
+                      type="text"
+                      placeholder="Escribe tu mensaje..."
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                      className="flex-1 text-xs px-2.5 py-1.5 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-lg text-slate-800 dark:text-zinc-200 focus:outline-none"
+                    />
+                    <button
+                      onClick={handleSendMessage}
+                      className="p-1.5 bg-gradient-to-r from-orange-400 to-pink-500 hover:opacity-90 text-white rounded-lg transition-all"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Device Bottom Tab bar navigation */}
+            <div className="border-t border-slate-100 dark:border-zinc-900 bg-slate-50/70 dark:bg-zinc-900/45 px-2 py-1 flex items-center justify-around text-neutral-400 dark:text-zinc-500">
+              <button
+                onClick={() => setActiveMockScreen('habitos')}
+                className={`py-2 px-1 flex flex-col items-center gap-1 text-[10px] tracking-tight ${
+                  activeMockScreen === 'habitos'
+                    ? 'text-orange-500 font-extrabold'
+                    : 'hover:text-slate-700 dark:hover:text-zinc-300'
+                }`}
+              >
+                <BookmarkCheck className="w-4 h-4 text-orange-500" />
+                <span>Hábitos</span>
+              </button>
+              
+              <button
+                onClick={() => setActiveMockScreen('recompensas')}
+                className={`py-2 px-1 flex flex-col items-center gap-1 text-[10px] tracking-tight ${
+                  activeMockScreen === 'recompensas'
+                    ? 'text-pink-500 font-extrabold'
+                    : 'hover:text-slate-700 dark:hover:text-zinc-300'
+                }`}
+              >
+                <Gift className="w-4 h-4 text-pink-505" />
+                <span>Premios</span>
+              </button>
+
+              <button
+                onClick={() => setActiveMockScreen('estadisticas')}
+                className={`py-2 px-1 flex flex-col items-center gap-1 text-[10px] tracking-tight ${
+                  activeMockScreen === 'estadisticas'
+                    ? 'text-indigo-500 font-extrabold'
+                    : 'hover:text-slate-700 dark:hover:text-zinc-300'
+                }`}
+              >
+                <TrendingUp className="w-4 h-4 text-indigo-505" />
+                <span>Métricas</span>
+              </button>
+
+              <button
+                onClick={() => setActiveMockScreen('chat')}
+                className={`py-2 px-1 flex flex-col items-center gap-1 text-[10px] tracking-tight ${
+                  activeMockScreen === 'chat'
+                    ? 'text-orange-500 font-extrabold'
+                    : 'hover:text-slate-700 dark:hover:text-zinc-300'
+                }`}
+              >
+                <div className="relative">
+                  <MessageSquare className="w-4 h-4" />
+                  <span className="absolute -top-1 -right-1.5 w-2.5 h-2.5 bg-gradient-to-tr from-orange-400 to-pink-500 rounded-full animate-bounce" />
+                </div>
+                <span>Chat</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}

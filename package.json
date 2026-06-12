@@ -1,0 +1,327 @@
+import { useState } from 'react';
+import {
+  Layers,
+  Database,
+  Milestone,
+  BookOpen,
+  ArrowRight,
+  GitCommit,
+  CheckCircle,
+  HelpCircle,
+  Hash,
+  Smartphone,
+  Sparkles
+} from 'lucide-react';
+import { TECH_STACK_PROPOSAL, DATA_ENTITIES, USER_DAILY_FLOW, ATOMIC_PRINCIPLES_EXPLANATION } from '../data/proposalData';
+import { DataEntity } from '../types';
+
+export default function TechProposalDoc() {
+  const [activeDocTab, setActiveDocTab] = useState<'stack' | 'database' | 'flow' | 'principles'>('stack');
+  const [selectedEntity, setSelectedEntity] = useState<DataEntity>(DATA_ENTITIES[1]); // Default to 'usuarios'
+
+  return (
+    <div className="bg-white/85 dark:bg-zinc-900 border-2 border-orange-100/60 dark:border-zinc-800 rounded-[32px] overflow-hidden shadow-xs transition-colors duration-300">
+      {/* Header of Docs */}
+      <div className="px-6 py-5 border-b border-orange-100/50 dark:border-zinc-800 bg-[#FDF8F6]/75 dark:bg-zinc-950 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-0.5 bg-gradient-to-r from-orange-400 to-pink-500 text-white font-mono text-[9px] font-black rounded-full tracking-wider uppercase">
+              REQUISITOS Y ARQUITECTURA
+            </span>
+          </div>
+          <h2 className="text-xl font-black text-slate-900 dark:text-zinc-100 mt-2 tracking-tight">
+            Gobernanza del Sistema Vínculo
+          </h2>
+          <p className="text-xs text-slate-505 text-slate-500 dark:text-zinc-450 mt-1">
+            Diseño e ingeniería técnica para el desarrollo veloz de la aplicación móvil.
+          </p>
+        </div>
+
+        {/* Dynamic doc navigation icons */}
+        <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 dark:bg-zinc-900 rounded-2xl border border-slate-250/30">
+          <button
+            onClick={() => setActiveDocTab('stack')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-black rounded-xl transition-all ${
+              activeDocTab === 'stack'
+                ? 'bg-gradient-to-r from-orange-400 to-pink-500 text-white shadow-xs'
+                : 'text-neutral-500 dark:text-zinc-450 hover:text-neutral-900 dark:hover:text-zinc-100'
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5" />
+            Stack
+          </button>
+          <button
+            onClick={() => setActiveDocTab('database')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-black rounded-xl transition-all ${
+              activeDocTab === 'database'
+                ? 'bg-gradient-to-r from-orange-400 to-pink-500 text-white shadow-xs'
+                : 'text-neutral-500 dark:text-zinc-450 hover:text-neutral-900 dark:hover:text-zinc-100'
+            }`}
+          >
+            <Database className="w-3.5 h-3.5" />
+            Modelo Relacional
+          </button>
+          <button
+            onClick={() => setActiveDocTab('flow')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-black rounded-xl transition-all ${
+              activeDocTab === 'flow'
+                ? 'bg-gradient-to-r from-orange-400 to-pink-500 text-white shadow-xs'
+                : 'text-neutral-500 dark:text-zinc-450 hover:text-neutral-900 dark:hover:text-zinc-100'
+            }`}
+          >
+            <Milestone className="w-3.5 h-3.5" />
+            Flujo Diario
+          </button>
+          <button
+            onClick={() => setActiveDocTab('principles')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-black rounded-xl transition-all ${
+              activeDocTab === 'principles'
+                ? 'bg-gradient-to-r from-orange-400 to-pink-500 text-white shadow-xs'
+                : 'text-neutral-500 dark:text-zinc-450 hover:text-neutral-900 dark:hover:text-zinc-100'
+            }`}
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            Leyes Atómicas
+          </button>
+        </div>
+      </div>
+
+      <div className="p-6">
+        {/* TAB 1: TECH STACK PROPOSAL */}
+        {activeDocTab === 'stack' && (
+          <div className="space-y-6">
+            <div className="bg-white dark:bg-zinc-950 p-6 rounded-xl border border-neutral-200 dark:border-zinc-800 shadow-xs">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-rose-50 dark:bg-rose-950 text-rose-500 rounded-lg">
+                    <Smartphone className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">
+                      RECOMENDACIÓN REY PARA STARTUPS
+                    </span>
+                    <h3 className="text-lg font-bold text-neutral-800 dark:text-zinc-100 mt-0.5">
+                      {TECH_STACK_PROPOSAL.recommended.title}
+                    </h3>
+                  </div>
+                </div>
+                <span className="px-3 py-1 bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400 text-xs font-semibold rounded-full border border-emerald-100 dark:border-emerald-900">
+                  Desarrollo Ultra Rápido
+                </span>
+              </div>
+
+              <p className="text-sm text-neutral-600 dark:text-zinc-350 my-4 leading-relaxed">
+                {TECH_STACK_PROPOSAL.recommended.reason}
+              </p>
+
+              <div className="border-t border-neutral-100 dark:border-zinc-800 pt-4 space-y-3">
+                <h4 className="text-xs font-bold text-neutral-500 dark:text-zinc-400 uppercase tracking-wider">
+                  ¿Por qué es perfecto para parejas?
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {TECH_STACK_PROPOSAL.recommended.points.map((point, index) => {
+                    const [title, desc] = point.split(':');
+                    return (
+                      <div key={index} className="p-3 bg-neutral-50 dark:bg-zinc-900 border border-neutral-150 dark:border-zinc-800/80 rounded-lg">
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-rose-500 flex-shrink-0 mt-0.5" />
+                          <div className="text-xs">
+                            <strong className="text-neutral-800 dark:text-zinc-200">{title}:</strong>
+                            <span className="text-neutral-500 dark:text-zinc-400 ml-1">{desc}</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Alternatives section */}
+            <div>
+              <h3 className="text-xs font-bold text-neutral-400 dark:text-zinc-500 uppercase tracking-wider mb-3">
+                ALTERNATIVAS VALORADAS
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {TECH_STACK_PROPOSAL.alternatives.map((alt, index) => (
+                  <div key={index} className="bg-white dark:bg-zinc-950 p-4 rounded-xl border border-neutral-200 dark:border-zinc-800 shadow-xs">
+                    <h4 className="text-sm font-semibold text-neutral-800 dark:text-zinc-200 flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-blue-500" />
+                      {alt.name}
+                    </h4>
+                    <p className="text-xs text-neutral-500 dark:text-zinc-400 mt-2 leading-relaxed">
+                      {alt.reason}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 2: DETAILED DATA MODEL */}
+        {activeDocTab === 'database' && (
+          <div className="space-y-6">
+            <div className="p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900 rounded-xl text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
+              <strong>💡 Estructuración SQL Relacional/NoSQL:</strong> El modelo lógico a continuación define la co-dependencia y vinculación entre usuarios de la misma relación. Haz clic en las diferentes entidades en el panel izquierdo para inspeccionar su diccionario de datos técnico detallado y las relaciones del sistema.
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Entity selector list */}
+              <div className="lg:col-span-4 space-y-2">
+                <span className="text-[10px] font-bold text-neutral-400 dark:text-zinc-500 uppercase tracking-wider block mb-1">
+                  ENTIDADES PRINCIPALES
+                </span>
+                {DATA_ENTITIES.map((entity, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedEntity(entity)}
+                    className={`w-full text-left p-3.5 rounded-xl border transition-all flex items-center justify-between ${
+                      selectedEntity.name === entity.name
+                        ? 'bg-blue-500/10 border-blue-500 text-blue-700 dark:text-blue-400 shadow-xs'
+                        : 'bg-white dark:bg-zinc-950 border-neutral-200 dark:border-zinc-800 text-neutral-700 dark:text-zinc-300 hover:bg-neutral-50 dark:hover:bg-zinc-900/60'
+                    }`}
+                  >
+                    <div>
+                      <div className="text-xs font-mono font-bold">{entity.name}</div>
+                      <div className="text-[10px] text-neutral-450 dark:text-zinc-500 line-clamp-1 mt-0.5">
+                        {entity.description}
+                      </div>
+                    </div>
+                    <ArrowRight className={`w-3.5 h-3.5 transition-transform ${selectedEntity.name === entity.name ? 'translate-x-1 text-blue-500' : 'text-neutral-350 dark:text-zinc-600'}`} />
+                  </button>
+                ))}
+              </div>
+
+              {/* Selected Entity Details */}
+              <div className="lg:col-span-8 bg-white dark:bg-zinc-950 rounded-xl border border-neutral-200 dark:border-zinc-800 p-5 shadow-xs">
+                <div className="flex items-center gap-2 mb-3">
+                  <Database className="w-5 h-5 text-blue-500" />
+                  <h4 className="text-base font-bold text-neutral-800 dark:text-zinc-100 font-mono">
+                    Tabla: <span className="text-blue-600 dark:text-blue-400">{selectedEntity.name}</span>
+                  </h4>
+                </div>
+                <p className="text-xs text-neutral-500 dark:text-zinc-400 mb-4 leading-relaxed">
+                  {selectedEntity.description}
+                </p>
+
+                {/* Grid fields */}
+                <div className="space-y-2">
+                  <div className="grid grid-cols-12 gap-2 text-[10px] font-bold text-neutral-400 dark:text-zinc-500 tracking-wider uppercase border-b border-neutral-100 dark:border-zinc-800 pb-1.5">
+                    <div className="col-span-4">Atributo</div>
+                    <div className="col-span-3">Tipo</div>
+                    <div className="col-span-5">Descripción</div>
+                  </div>
+
+                  <div className="space-y-1.5 overflow-y-auto max-h-[250px] pr-1">
+                    {selectedEntity.fields.map((f, fi) => (
+                      <div
+                        key={fi}
+                        className="grid grid-cols-12 gap-2 py-1.5 items-center border-b border-neutral-50 dark:border-zinc-900/50 text-xs font-mono"
+                      >
+                        <div className="col-span-4 font-semibold text-neutral-800 dark:text-zinc-200 flex items-center gap-1 overflow-hidden text-ellipsis">
+                          {f.isKey && <span className="px-1 py-0.2 text-[8px] bg-yellow-100 text-yellow-800 rounded font-bold">PK</span>}
+                          {f.isFK && <span className="px-1 py-0.2 text-[8px] bg-purple-100 text-purple-800 rounded font-bold">FK</span>}
+                          <span>{f.name}</span>
+                        </div>
+                        <div className="col-span-3 text-[11px] text-neutral-500 dark:text-zinc-400">
+                          {f.type}
+                        </div>
+                        <div className="col-span-5 text-[11px] text-neutral-600 dark:text-zinc-400 font-sans leading-tight">
+                          {f.desc}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Relationships view */}
+                <div className="mt-4 pt-4 border-t border-neutral-100 dark:border-zinc-800">
+                  <h5 className="text-[10px] font-bold text-neutral-400 dark:text-zinc-500 uppercase tracking-wider mb-2">
+                    RESTRICCIONES Y RELACIONES CÁRDINALES
+                  </h5>
+                  <ul className="space-y-1">
+                    {selectedEntity.relationships.map((rel, rIndex) => (
+                      <li key={rIndex} className="text-xs text-neutral-600 dark:text-zinc-400 flex items-start gap-1.5">
+                        <GitCommit className="w-3.5 h-3.5 text-blue-500 mt-0.5 flex-shrink-0" />
+                        <span>{rel}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: DAILY USER FLOW */}
+        {activeDocTab === 'flow' && (
+          <div className="space-y-6">
+            <div className="text-xs text-neutral-600 dark:text-zinc-400 max-w-xl">
+              Este mapa conceptualiza el flujo de la experiencia diaria ideal dentro de <strong>Vínculo</strong>, estructurado para reducir la procrastinación en pareja.
+            </div>
+
+            <div className="relative border-l-2 border-neutral-200 dark:border-zinc-800 ml-3 space-y-8 pl-6 my-4">
+              {USER_DAILY_FLOW.map((s, index) => (
+                <div key={index} className="relative group">
+                  {/* Circle Step Number indicator */}
+                  <div className="absolute -left-[35px] top-0.5 w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold ring-4 ring-neutral-50 dark:ring-zinc-900 group-hover:scale-110 transition-transform">
+                    {s.step}
+                  </div>
+
+                  {/* Content details */}
+                  <div className="bg-white dark:bg-zinc-950 p-4 border border-neutral-250 dark:border-zinc-800 rounded-xl shadow-xs">
+                    <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest font-mono">
+                      {s.phase}
+                    </span>
+                    <h4 className="text-sm font-bold text-neutral-800 dark:text-zinc-100 mt-0.5">
+                      {s.title}
+                    </h4>
+                    <p className="text-xs text-neutral-600 dark:text-zinc-400 mt-2 leading-relaxed">
+                      {s.action}
+                    </p>
+
+                    {/* Atomic Habit Principle hook decoration */}
+                    <div className="mt-3 p-2 bg-neutral-50 dark:bg-zinc-900/60 rounded border-l-2 border-rose-500 text-[11px] text-neutral-500 dark:text-zinc-400 italic">
+                      🎯 {s.atomicHabitPrinciple}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 4: ATOMIC HABITS PRINCIPLES FOR COUPLES */}
+        {activeDocTab === 'principles' && (
+          <div className="space-y-6">
+            <div className="flex items-center gap-2 mb-2">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              <h3 className="text-sm font-semibold text-neutral-800 dark:text-zinc-100">
+                La Fórmula del Éxito Compartido ("Atomic Habits")
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {ATOMIC_PRINCIPLES_EXPLANATION.map((law, index) => (
+                <div key={index} className="bg-white dark:bg-zinc-950 p-5 rounded-xl border border-neutral-200 dark:border-zinc-800 shadow-xs">
+                  <span className="text-xs font-bold text-amber-600 dark:text-amber-400 tracking-wider block mb-1">
+                    {law.law}
+                  </span>
+                  <p className="text-xs text-neutral-600 dark:text-zinc-400 leading-relaxed">
+                    {law.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900 rounded-xl text-xs text-amber-800 dark:text-amber-300">
+              <strong className="block mb-1">⚙️ Concepto de Apilamiento de Hábitos para Parejas:</strong>
+              "Nosotros, después de cenar y apagar la televisión [Hábito de rutina sólida establecido en pareja], abriremos la app y registraremos nuestros ahorros diarios [Nuevo hábito atómico financiero sencillo]." Esto aprovecha la inercia conductual previa.
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
