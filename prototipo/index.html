@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Prototipo - Metas en Pareja</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">ParejaGoals</div>
+    <nav class="nav">
+      <button data-view="dashboard" class="nav-btn active">Dashboard</button>
+      <button data-view="today" class="nav-btn">Mi Día</button>
+      <button data-view="rewards" class="nav-btn">Recompensas</button>
+      <button data-view="chat" class="nav-btn">Chat</button>
+      <button data-view="report" class="nav-btn">Reporte</button>
+      <button id="themeToggle" class="nav-btn">Modo Oscuro</button>
+    </nav>
+  </header>
+
+  <main id="app">
+    <!-- Dashboard -->
+    <section id="dashboard" class="view">
+      <div class="row">
+        <div class="card large">
+          <h3>Progreso Pareja</h3>
+          <div class="combined">
+            <svg viewBox="0 0 36 36" class="circular-chart green">
+              <path class="circle-bg"
+                d="M18 2.0845
+                   a 15.9155 15.9155 0 0 1 0 31.831
+                   a 15.9155 15.9155 0 0 1 0 -31.831"/>
+              <path class="circle" stroke-dasharray="65, 100"
+                d="M18 2.0845
+                   a 15.9155 15.9155 0 0 1 0 31.831
+                   a 15.9155 15.9155 0 0 1 0 -31.831"/>
+              <text x="18" y="20.35" class="percentage">65%</text>
+            </svg>
+            <div class="kpis">
+              <div><strong>Ahorro</strong><div class="kpi">$1,250 / $2,000</div></div>
+              <div><strong>Rachas</strong><div class="kpi">Lectura 7 días</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h4>Acciones recientes</h4>
+          <ul class="feed">
+            <li>María completó "Ejercicio" (racha +1)</li>
+            <li>Carlos propuso recompensa: "Cenar fuera"</li>
+            <li>Reclamación pendiente: Validar foto</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="card full">
+          <h4>Prioridades</h4>
+          <div class="carousel">
+            <div class="goal-card">
+              <div class="meta-title">Leer 20 páginas</div>
+              <div class="meta-meta">Personal • Diario</div>
+              <div class="meta-actions">
+                <button class="small">Abrir</button>
+                <button class="small secondary">Proponer recompensa</button>
+              </div>
+            </div>
+            <div class="goal-card">
+              <div class="meta-title">Ahorrar $100</div>
+              <div class="meta-meta">Financiera • Semanal</div>
+              <div class="meta-actions">
+                <button class="small">Abrir</button>
+                <button class="small secondary">Proponer recompensa</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mi Día -->
+    <section id="today" class="view hidden">
+      <div class="card">
+        <h3>Mi Día</h3>
+        <ul id="todayList" class="today-list"></ul>
+      </div>
+      <div class="card full">
+        <button id="addSample" class="primary">Agregar tarea de muestra</button>
+      </div>
+    </section>
+
+    <!-- Recompensas -->
+    <section id="rewards" class="view hidden">
+      <div class="card">
+        <h3>Recompensas</h3>
+        <ul id="rewardsList" class="rewards-list"></ul>
+      </div>
+    </section>
+
+    <!-- Chat -->
+    <section id="chat" class="view hidden">
+      <div class="card full chat-card">
+        <div id="chatLog" class="chat-log"></div>
+        <div class="chat-input">
+          <input id="chatMsg" placeholder="Escribe un mensaje..." />
+          <button id="sendMsg" class="small">Enviar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Reporte -->
+    <section id="report" class="view hidden">
+      <div class="card">
+        <h3>Reporte Semanal</h3>
+        <p>Resumen automático generado cada lunes.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="confetti" class="confetti hidden">🎉</div>
+
+  <script src="app.js"></script>
+</body>
+</html>

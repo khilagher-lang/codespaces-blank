@@ -1,0 +1,52 @@
+:root{
+  --bg:#f7f8fb; --card:#ffffff; --text:#0f172a; --muted:#64748b; --primary:#4f46e5; --accent:#06b6d4;
+}
+:root.dark{ --bg:#071021; --card:#0f172a; --text:#e6eef8; --muted:#94a3b8; --primary:#7c5cff; --accent:#19e6f1; }
+*{box-sizing:border-box}
+body{font-family:Inter, system-ui, Arial; margin:0; background:var(--bg); color:var(--text);}
+.topbar{display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:linear-gradient(90deg, rgba(79,70,229,0.06), transparent);}
+.brand{font-weight:700}
+.nav{display:flex; gap:8px}
+.nav-btn{background:transparent;border:0;padding:8px 10px;border-radius:8px;color:var(--primary);cursor:pointer}
+.nav-btn.active{background:rgba(79,70,229,0.12)}
+main{padding:16px}
+.row{display:flex; gap:16px; margin-bottom:16px}
+.card{background:var(--card); border-radius:12px; padding:12px; box-shadow:0 4px 14px rgba(2,6,23,0.06); flex:1}
+.card.large{flex:2}
+.card.full{flex:1 1 100%}
+.combined{display:flex; align-items:center; gap:12px}
+.circular-chart{width:112px;height:112px}
+.circle-bg{fill:none; stroke:#eee; stroke-width:2.8}
+.circle{fill:none; stroke:var(--primary); stroke-width:2.8; stroke-linecap:round; transform:rotate(-90deg); transform-origin:center}
+.percentage{font-size:0.6rem; text-anchor:middle; fill:var(--text)}
+.kpis{display:flex; flex-direction:column; gap:8px}
+.kpi{color:var(--muted)}
+.feed{list-style:none; padding:0; margin:0}
+.feed li{padding:6px 0; border-bottom:1px dashed rgba(0,0,0,0.04)}
+.carousel{display:flex; gap:12px}
+.goal-card{min-width:180px; border-radius:10px; padding:12px; background:linear-gradient(180deg, rgba(6,182,212,0.05), transparent);}
+.meta-title{font-weight:600}
+.meta-meta{color:var(--muted); font-size:13px}
+.meta-actions{display:flex; gap:8px; margin-top:8px}
+.small{padding:6px 8px; border-radius:8px; background:transparent; border:1px solid rgba(0,0,0,0.06); cursor:pointer}
+.secondary{border-color:rgba(79,70,229,0.16)}
+.primary{background:var(--primary); color:white; padding:10px 14px; border-radius:10px; border:0}
+.hidden{display:none}
+.today-list{list-style:none; padding:0; margin:8px 0}
+.today-item{display:flex; align-items:center; gap:12px; padding:10px; border-radius:10px; border:1px solid rgba(0,0,0,0.04); margin-bottom:8px}
+.check{width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(0,0,0,0.06); cursor:pointer}
+.check.done{background:linear-gradient(90deg,var(--primary),var(--accent)); color:white}
+.rewards-list{list-style:none; padding:0}
+.rewards-list li{padding:8px 0; border-bottom:1px dashed rgba(0,0,0,0.04)}
+.chat-card{display:flex; flex-direction:column; height:60vh}
+.chat-log{flex:1; overflow:auto; padding:8px}
+.chat-input{display:flex; gap:8px}
+.chat-input input{flex:1; padding:8px; border-radius:8px; border:1px solid rgba(0,0,0,0.06)}
+.confetti{position:fixed; right:16px; bottom:16px; font-size:48px; pointer-events:none;}
+.footer{padding:12px}
+@media (max-width:800px){.row{flex-direction:column}}
+
+/* simple visuals for dark-mode toggle */
+.theme-indicator{font-size:12px; color:var(--muted)}
+
+```
